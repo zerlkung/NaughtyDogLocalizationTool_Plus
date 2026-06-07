@@ -19,6 +19,8 @@ from pathlib import Path
 
 UNKNOWN_STRING = b"UNKNOWN STRING!!!\0"
 LOCALIZATION_EXTENSIONS = {'.subtitles', '.common', '.subtitles-systemic', '.web'}
+# Compound suffixes for game-prefixed files (e.g. 2.tll-subtitles, 1.uncharted-common)
+LOCALIZATION_SUFFIXES = {'-subtitles', '-common', '-subtitles-systemic', '-web'}
 SUPPORTED_GAMES = ["Uncharted (ALL Games)", "Last Of Us (ALL Games)"]
 
 
@@ -257,11 +259,23 @@ def process_path(arg: str) -> int:
     return 0
 
 
+def is_localization_file(filepath: str) -> bool:
+    """Check if file is a supported localization file (exact or compound extension)."""
+    name = Path(filepath).name.lower()
+    for ext in LOCALIZATION_EXTENSIONS:
+        if name.endswith(ext):
+            return True
+    for suffix in LOCALIZATION_SUFFIXES:
+        if name.endswith(suffix):
+            return True
+    return False
+
+
 def process_file(filepath: str) -> bool:
     """Process single file. Returns True if processed."""
     ext = Path(filepath).suffix.lower()
 
-    if ext in LOCALIZATION_EXTENSIONS:
+    if is_localization_file(filepath):
         try:
             return export_file(filepath)
         except Exception as e:
@@ -297,6 +311,7 @@ def show_usage():
     print(f"  {exe} <path1> <path2> ...     Process multiple files/folders")
     print()
     print(f"Supported extensions: {', '.join(sorted(LOCALIZATION_EXTENSIONS))}")
+    print(f"Also matches compound: *.xxx-subtitles, *.xxx-common, etc. (e.g. 2.tll-subtitles)")
     print()
     print(f"Supported games:")
     for g in SUPPORTED_GAMES:
@@ -325,7 +340,7 @@ def main():
     print(f"Done! ({total} file(s) processed)")
     if total == 0 and len(sys.argv) == 2 and Path(sys.argv[1]).is_file():
         ext = Path(sys.argv[1]).suffix.lower()
-        if ext not in LOCALIZATION_EXTENSIONS and ext != '.txt':
+        if not is_localization_file(arg) and ext != '.txt':
             print(f"Hint: '{ext}' is not a supported file type.")
 
 
