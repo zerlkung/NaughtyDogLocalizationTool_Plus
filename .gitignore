@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# PyInstaller
+*.spec
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Exported files (generated)
+*.txt
+*.ids
+*.new
+!requirements.txt
+
+# Test files
+files_test/
+
+# Claude
+CLAUDE.md
